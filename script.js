@@ -13,27 +13,29 @@ function toggleTheme() {
     }
 }
 
-// Fetch weather from API and update UI
+// Fetch weather from the Weather API and update UI
 async function getWeather() {
     const location = document.getElementById('location-input').value;
     if (!location) return;
 
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=your-openweathermap-api-key`);
+    const apiKey = '2413b19a86ce47d1a34192606251801'; // Your Weather API key
+    const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=no`);
     const data = await response.json();
     
-    if (data.cod === 200) {
-        const temp = data.main.temp;
-        const condition = data.weather[0].description;
-        const background = getWeatherBackground(condition);
-
-        document.getElementById('temperature').textContent = `${temp}°C`;
-        document.getElementById('condition').textContent = condition;
-        document.getElementById('background').style.backgroundImage = `url(${background})`;
-
-        savePreferences(location, temp, condition);
-    } else {
+    if (data.error) {
         alert('Location not found');
+        return;
     }
+
+    const temp = data.current.temp_c; // Temperature in Celsius
+    const condition = data.current.condition.text; // Weather condition
+    const background = getWeatherBackground(condition);
+
+    document.getElementById('temperature').textContent = `${temp}°C`;
+    document.getElementById('condition').textContent = condition;
+    document.getElementById('background').style.backgroundImage = `url(${background})`;
+
+    savePreferences(location, temp, condition);
 }
 
 // Save preferences in cookies
@@ -72,13 +74,14 @@ function setPreferences() {
 // Change background based on weather condition
 function getWeatherBackground(condition) {
     const backgrounds = {
-        'clear sky': 'https://path/to/clear-sky.jpg',
-        'clouds': 'https://path/to/cloudy.jpg',
-        'rain': 'https://path/to/rain.jpg',
-        'snow': 'https://path/to/snow.jpg',
-        'thunderstorm': 'https://path/to/thunderstorm.jpg',
-        'drizzle': 'https://path/to/drizzle.jpg',
-        'mist': 'https://path/to/mist.jpg'
+        'Clear': 'https://path/to/clear-sky.jpg',
+        'Partly cloudy': 'https://path/to/cloudy.jpg',
+        'Cloudy': 'https://path/to/cloudy.jpg',
+        'Rain': 'https://path/to/rain.jpg',
+        'Snow': 'https://path/to/snow.jpg',
+        'Thunderstorm': 'https://path/to/thunderstorm.jpg',
+        'Drizzle': 'https://path/to/drizzle.jpg',
+        'Mist': 'https://path/to/mist.jpg'
     };
 
     return backgrounds[condition] || 'https://path/to/default-weather.jpg';
